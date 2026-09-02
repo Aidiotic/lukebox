@@ -375,7 +375,10 @@ body {
 /* The mark sits in its own gutter to the left of the number, where it reads
    as a margin annotation on a list rather than another control in the row. */
 .mark {
-  align-self: center;
+  /* Sits on the title's line like the track number does, rather than centring
+     itself against rows that run to three lines. */
+  align-self: start;
+  margin-top: 1px;
   width: 20px;
   height: 20px;
   padding: 0;
@@ -559,6 +562,8 @@ kbd {
   /* The links drop to their own line under the text, still always present. */
   .track-links { grid-column: 3 / -1; }
   .mark { opacity: 1; } /* no hover on a phone to reveal it */
+  /* space-between strands the tab mid-row while the result count is empty. */
+  .tallybar { justify-content: flex-start; }
   .tally { margin-left: 0; }
   .foot-meta { display: none; } /* no keyboard to press these on */
 }
