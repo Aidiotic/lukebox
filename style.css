@@ -1,0 +1,564 @@
+/* lukebox — dropline and clearline's visual language, carried over: cream
+   paper, ink, a clay accent. Flat by intent: no shadows, no gradients, no
+   glass, almost no borders. Hierarchy comes from whitespace and weight.
+
+   The departure here is width. A call wants one column; a list of 239 tracks
+   wants a table, so the page runs wider and each row is a four-part grid that
+   collapses to two parts on a phone. */
+
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap');
+
+:root {
+  --paper: #F5EAD8;
+  --raised: #EEE7DB;
+  --ink: #201E1D;
+  --muted: #82796A;
+  --faint: #C0B6A5;
+  --rule: #DCD3C4;
+  --clay: #C67139;
+  --clay-strong: #B2622D;
+  --clay-strong-hover: #8C491A;
+  --wash: #EFDFC6;
+
+  --font-heading: "Caprasimo", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Figtree", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --step: clamp(28px, 5.5vw, 44px);
+  --ease: cubic-bezier(.32, .72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1B1815;
+    --raised: #241F19;
+    --ink: #F5EAD8;
+    --muted: #A89D8A;
+    --faint: #4A4234;
+    --rule: #372F26;
+    --clay-strong: #F6A06B;
+    --clay-strong-hover: #FFC6A5;
+    --wash: #2C2419;
+  }
+}
+
+/* An explicit choice wins over the media query; data-theme="system" sets
+   neither block and falls back through to it. */
+html[data-theme="light"] {
+  --paper: #F5EAD8; --raised: #EEE7DB; --ink: #201E1D; --muted: #82796A;
+  --faint: #C0B6A5; --rule: #DCD3C4; --clay-strong: #B2622D;
+  --clay-strong-hover: #8C491A; --wash: #EFDFC6;
+}
+
+html[data-theme="dark"] {
+  --paper: #1B1815; --raised: #241F19; --ink: #F5EAD8; --muted: #A89D8A;
+  --faint: #4A4234; --rule: #372F26; --clay-strong: #F6A06B;
+  --clay-strong-hover: #FFC6A5; --wash: #2C2419;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  padding: var(--step) 24px calc(var(--step) * 1.5);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { width: 100%; max-width: 840px; margin: 0 auto; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── head ─────────────────────────────────────────────────── */
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(30px, 7vw, 38px);
+  letter-spacing: -0.015em;
+  line-height: 1;
+}
+
+/* Three bars on a meter, breathing out of phase. The mark is the only motion
+   on the page that runs on its own. */
+.mark {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+  flex: none;
+}
+
+.mark i {
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--clay);
+  animation: meter 1.9s var(--ease) infinite;
+}
+
+.mark i:nth-child(1) { height: 11px; animation-delay: -.9s; }
+.mark i:nth-child(2) { height: 20px; animation-delay: -.35s; }
+.mark i:nth-child(3) { height: 14px; }
+
+@keyframes meter {
+  0%, 100% { transform: scaleY(.45); opacity: .55; }
+  50%      { transform: scaleY(1);   opacity: 1; }
+}
+
+.mark i { transform-origin: bottom; }
+
+.statusline {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.lede {
+  margin: 18px 0 0;
+  max-width: 46ch;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+/* ── the bar ──────────────────────────────────────────────── */
+
+.bar {
+  margin: var(--step) 0 8px;
+  display: grid;
+  gap: 14px;
+}
+
+.find { position: relative; display: flex; }
+
+.find-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 76px 12px 0;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  transition: border-color .2s var(--ease);
+}
+
+.find-input::placeholder { color: var(--faint); }
+.find-input:focus { outline: none; border-bottom-color: var(--clay); }
+.find-input::-webkit-search-cancel-button { display: none; }
+
+.find-clear {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  padding: 6px 2px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.find-clear:hover { color: var(--clay-strong); }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.field { display: inline-flex; }
+
+.select, .act, .seg-btn, .theme {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 15px;
+  cursor: pointer;
+  transition: border-color .18s var(--ease), color .18s var(--ease),
+              background-color .18s var(--ease);
+}
+
+.select {
+  appearance: none;
+  padding-right: 30px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 15px center, right 10px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.select:hover, .act:hover, .seg-btn:hover, .theme:hover { border-color: var(--clay); }
+
+.select:focus-visible, .act:focus-visible, .seg-btn:focus-visible,
+.theme:focus-visible, .find-clear:focus-visible, .track:focus-visible,
+.track-link:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 2px;
+}
+
+.act-accent {
+  color: var(--clay-strong);
+  border-color: var(--clay-strong);
+  font-weight: 600;
+}
+
+.act-accent:hover { color: var(--clay-strong-hover); border-color: var(--clay-strong-hover); }
+.act-accent:active { transform: translateY(1px); }
+
+/* Two buttons reading as one control: shared border, no gap. */
+.seg { display: inline-flex; }
+.seg-btn:first-child { border-radius: 999px 0 0 999px; border-right-width: 0; }
+.seg-btn:last-child  { border-radius: 0 999px 999px 0; }
+
+.seg-btn[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.tallybar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-height: 1.4em;
+}
+
+.count {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── the running tab ──────────────────────────────────────── */
+
+/* Three figures, a meter and a reset, on one line. Compact enough to sit
+   beside the result count without becoming a second toolbar. */
+.tally {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.tally-seg {
+  border: 0;
+  background: none;
+  padding: 3px 6px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .16s var(--ease), background-color .16s var(--ease);
+}
+
+.tally-seg b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.tally-seg:hover { color: var(--ink); }
+.tally-seg[aria-pressed="true"] { background: var(--wash); color: var(--ink); }
+.tally-seg.is-known b { color: var(--clay-strong); }
+
+/* Before anything is marked the tab is a prompt, not a score. */
+.tally[data-empty="true"] .tally-seg b { color: var(--faint); }
+.tally[data-empty="true"] .tally-seg.is-known b { color: var(--faint); }
+
+.meter {
+  display: flex;
+  width: 56px;
+  height: 3px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.meter i {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width .3s var(--ease);
+}
+
+.m-known { background: var(--clay); }
+.m-unknown { background: var(--muted); }
+
+.tally-reset {
+  border: 0;
+  background: none;
+  padding: 3px 4px;
+  margin-left: 4px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.tally-reset:hover { color: var(--clay-strong); }
+
+/* ── the list ─────────────────────────────────────────────── */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.track {
+  display: grid;
+  grid-template-columns: 22px 2rem 1fr auto auto;
+  align-items: baseline;
+  gap: 0 12px;
+  padding: 11px 8px 11px 0;
+  border-bottom: 1px solid var(--rule);
+  scroll-margin: 100px;
+}
+
+.track:hover { background: var(--raised); }
+
+.track.is-focus {
+  background: var(--wash);
+  box-shadow: inset 2px 0 0 var(--clay);
+}
+
+@keyframes flash {
+  from { background: var(--clay); }
+  to   { background: var(--wash); }
+}
+
+.track.is-flash { animation: flash .7s var(--ease); }
+
+/* The mark sits in its own gutter to the left of the number, where it reads
+   as a margin annotation on a list rather than another control in the row. */
+.mark {
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--faint);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .45;
+  transition: opacity .16s var(--ease), background-color .16s var(--ease),
+              border-color .16s var(--ease), color .16s var(--ease);
+}
+
+/* Faint until wanted, but never hidden: a control that appears only on hover
+   is a control a keyboard or a phone cannot find. */
+.track:hover .mark,
+.track.is-focus .mark,
+.mark:focus-visible,
+.mark[data-state="known"],
+.mark[data-state="unknown"] { opacity: 1; }
+
+.mark:hover { border-color: var(--clay); }
+
+.mark[data-state="known"] {
+  background: var(--clay);
+  border-color: var(--clay);
+  color: var(--paper);
+}
+
+.mark[data-state="unknown"] {
+  border-color: var(--muted);
+  color: var(--muted);
+  background: transparent;
+}
+
+/* Known rows step back a little — the list is most useful as the set of
+   things still to learn, so what is left should carry the weight. */
+.track[data-mark="known"] .track-title { font-weight: 400; }
+.track[data-mark="known"] .track-num { opacity: .6; }
+
+.track-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--faint);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.track-main { min-width: 0; }
+
+.track-title {
+  display: block;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.track-by, .track-album {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* The album is the least of the three, and on a row where it repeats the
+   title it is dropped upstream rather than dimmed further. */
+.track-album { color: var(--faint); }
+
+.track-time {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+mark {
+  background: transparent;
+  color: var(--clay-strong);
+  font-weight: 700;
+}
+
+/* Links stay in the layout at all times — appearing on hover would put them
+   out of reach of anyone not using a mouse, and reserving the space stops
+   the row from twitching. */
+.track-links {
+  display: flex;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.track-link {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  opacity: .75;
+  transition: color .16s var(--ease), opacity .16s var(--ease);
+}
+
+.track:hover .track-link, .track.is-focus .track-link { opacity: 1; }
+.track-link:hover { color: var(--clay-strong); border-bottom-color: currentColor; }
+
+/* ── artist view ──────────────────────────────────────────── */
+
+.list.as-artists { border-top: 0; }
+
+.group { border-top: 1px solid var(--rule); padding: 4px 0 2px; }
+
+.group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 8px 6px 0;
+}
+
+.group-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.group-meta {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.group-tracks { list-style: none; margin: 0; padding: 0; }
+.group-tracks .track:last-child { border-bottom: 0; }
+.group-tracks .track-by { display: none; } /* the header already said who */
+
+.empty {
+  margin: 28px 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.empty-hint { color: var(--faint); }
+
+/* ── foot ─────────────────────────────────────────────────── */
+
+.foot {
+  margin-top: var(--step);
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 11px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--ink);
+}
+
+.theme { padding: 5px 12px; font-size: 12px; color: var(--muted); text-transform: lowercase; }
+
+/* ── narrow ───────────────────────────────────────────────── */
+
+@media (max-width: 620px) {
+  .track {
+    grid-template-columns: 22px 1.6rem 1fr auto;
+    row-gap: 6px;
+  }
+  /* The links drop to their own line under the text, still always present. */
+  .track-links { grid-column: 3 / -1; }
+  .mark { opacity: 1; } /* no hover on a phone to reveal it */
+  .tally { margin-left: 0; }
+  .foot-meta { display: none; } /* no keyboard to press these on */
+}

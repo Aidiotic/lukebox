@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>lukebox</title>
+<meta name="description" content="Luke's playlist, in full. 239 tracks, searchable, with a link out to every one.">
+<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#F5EAD8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1815" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='3' fill='%23C67139'/></svg>">
+</head>
+<body>
+
+<main id="app" data-view="tracks">
+
+  <header class="head">
+    <h1 class="wordmark">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span><span>lukebox</span>
+    </h1>
+    <p class="statusline" id="statusline"></p>
+    <p class="lede">Everything Luke listens to, in the order he added it. Search it, sort it,
+      or let it pick for you.</p>
+  </header>
+
+  <p id="live" class="sr-only" role="status" aria-live="polite"></p>
+
+  <div class="bar">
+    <div class="find">
+      <input type="search" id="search" class="find-input" autocomplete="off" spellcheck="false"
+             enterkeyhint="search" placeholder="Search titles, artists, albums" aria-label="Search">
+      <button type="button" id="clear" class="find-clear" aria-label="Clear search" hidden>clear</button>
+    </div>
+
+    <div class="controls">
+      <label class="field">
+        <span class="sr-only">Sort</span>
+        <select id="sort" class="select" aria-label="Sort">
+          <option value="order">Playlist order</option>
+          <option value="title">Title A–Z</option>
+          <option value="artist">Artist A–Z</option>
+          <option value="length">Shortest first</option>
+        </select>
+      </label>
+
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="view-tracks" class="seg-btn" aria-pressed="true">Tracks</button>
+        <button type="button" id="view-artists" class="seg-btn" aria-pressed="false">Artists</button>
+      </div>
+
+      <button type="button" id="shuffle" class="act act-accent">Shuffle</button>
+    </div>
+
+    <div class="tallybar">
+      <p class="count" id="count"></p>
+
+      <!-- The running tab. Each figure is also the filter for its own set,
+           which is what keeps it from being decoration. -->
+      <div class="tally" id="tally" role="group" aria-label="What you know">
+        <button type="button" class="tally-seg is-known" data-mark="known" aria-pressed="false">
+          <b id="n-known">0</b> know
+        </button>
+        <button type="button" class="tally-seg is-unknown" data-mark="unknown" aria-pressed="false">
+          <b id="n-unknown">0</b> don’t
+        </button>
+        <button type="button" class="tally-seg is-unrated" data-mark="unrated" aria-pressed="false">
+          <b id="n-unrated">0</b> left
+        </button>
+        <span class="meter" id="meter" aria-hidden="true"><i class="m-known"></i><i class="m-unknown"></i></span>
+        <button type="button" class="tally-reset" id="reset" hidden>reset</button>
+      </div>
+    </div>
+  </div>
+
+  <ul class="list" id="list"></ul>
+
+  <p class="empty" id="empty" hidden>Nothing matches. <span class="empty-hint">Try one word instead of three.</span></p>
+
+  <footer class="foot">
+    <span class="foot-meta"><kbd>/</kbd> search · <kbd>j</kbd> <kbd>k</kbd> move ·
+      <kbd>y</kbd> know · <kbd>n</kbd> don’t · <kbd>x</kbd> clear · <kbd>enter</kbd> open</span>
+    <span class="foot-links">
+      <button type="button" id="theme" class="theme">system</button>
+    </span>
+  </footer>
+
+</main>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
